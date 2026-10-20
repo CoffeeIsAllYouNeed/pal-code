@@ -49,3 +49,32 @@ jobs:
           python -m venv /tmp/clean && /tmp/clean/bin/pip install dist/*.whl
           cd /tmp && /tmp/clean/bin/pal --version && /tmp/clean/bin/pal --help
 
+
+  locked:
+    # the rebuild-from-scratch path: pinned Python, the hashed lockfile, one test command
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - name: Install from the lockfile
+        run: |
+          sudo apt-get update && sudo apt-get install -y pandoc
+          python -m pip install --require-hashes -r requirements.lock
+          python -m pip install --no-deps -e .
+      - name: Tests
+        run: python -m pytest -q
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test in the image
+        run: docker build --target test -t pal-code-test . && docker run --rm pal-code-test
+      - name: Build and start the app
+        run: |
+          docker build -t pal-code .
+          docker run -d --name pal -p 127.0.0.1:5000:5000 pal-code
+          for i in $(seq 1 30); do curl -fs http://127.0.0.1:5000/healthz && break; sleep 2; done
+          curl -fs http://127.0.0.1:5000/healthz

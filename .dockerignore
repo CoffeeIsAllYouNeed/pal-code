@@ -1,7 +1,5 @@
 .git
 .github
-tests
-experiments
 docs
 **/__pycache__
 **/*.pyc
@@ -11,3 +9,7 @@ docs
 *.egg-info
 venv
 .venv
+dist
+build
+.env
+tests/studio/ui/node_modules

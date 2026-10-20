@@ -1,2 +1,4 @@
-# Dependencies live in pyproject.toml. This file exists for tools that only understand requirements.txt.
--e .[full]
+# The exact, hashed dependency set (Python 3.12, Linux) is requirements.lock:  pip install --require-hashes -r requirements.lock
+# Regenerate it after changing pyproject.toml:
+#   uv pip compile pyproject.toml --extra dev --python-version 3.12 --python-platform x86_64-manylinux_2_28 --generate-hashes -o requirements.lock
+-r requirements.lock

@@ -28,7 +28,11 @@ class Script:
 ])
 def test_syntax_is_checked_for_many_languages(path, text, bad_line):
     found = check(path, text)
-    assert (found.line if found else None) == bad_line
+    line = found.line if found else None
+    if path.endswith(".json") and bad_line:                     # Python 3.12 points at the line after a trailing comma, 3.13 at the comma
+        assert line in (bad_line, bad_line + 1)
+    else:
+        assert line == bad_line
 
 
 def test_a_file_that_does_not_parse_goes_back_to_the_build_agent_before_you_see_it(tmp_path):

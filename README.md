@@ -20,6 +20,63 @@ pal web                   # 3. or the browser: opens Pal in your default browser
 `pal web` runs a small server on this computer only (`http://127.0.0.1:5000`) and opens the Studio, with the chat and the code editor one click
 away. Press Ctrl+C in the terminal to stop it. Options: `pal web --port 8080`, `pal web --page chat`, `pal web --no-open`, `pal web --dir <folder>`.
 
+## Setup, run and test (from this source code)
+
+Everything needed to rebuild Pal on a clean machine is in this repository:
+
+| | |
+|---|---|
+| Runtime | Python **3.12** (`.python-version`; the Docker image uses `python:3.12-slim-bookworm`) |
+| Dependencies | `requirements.lock`: every package pinned with its hash (Python 3.12, Linux) |
+| Settings | `.env.example` (copy to `.env`; it is git-ignored). No keys are stored in the code |
+| Container | `Dockerfile` (targets `app`, the default, and `test`) and `docker-compose.yml` |
+| Tests | one command: `python -m pytest -q` (no network, no real model) |
+
+### On a clean Linux machine (Ubuntu or Debian)
+
+```bash
+sudo apt-get update && sudo apt-get install -y git python3.12 python3.12-venv pandoc
+git clone https://github.com/CoffeeIsAllYouNeed/pal-code.git
+cd pal-code
+python3.12 -m venv .venv && . .venv/bin/activate
+pip install --require-hashes -r requirements.lock      # the exact, locked dependencies
+pip install --no-deps -e .                              # Pal itself
+cp .env.example .env                                    # optional: add API keys there
+
+python -m pytest -q                                     # test
+pal cli                                                 # run: the terminal, in the current folder
+pal web                                                 # or the browser (http://127.0.0.1:5000)
+```
+
+For an API model, set its key in `.env` or the shell (`export OPENAI_API_KEY=...`) and start with
+`pal cli --provider openai --model gpt-4o`. For a local model, install [Ollama](https://ollama.com/download) first. In the CLI, `\help`
+lists every command.
+
+### With Docker
+
+```bash
+docker build --target test -t pal-code-test . && docker run --rm pal-code-test     # test
+docker build -t pal-code .                                                         # build
+docker run --rm -p 127.0.0.1:5000:5000 --env-file .env -v "$PWD:/work" pal-code    # run: http://127.0.0.1:5000
+docker run --rm -it --env-file .env -v "$PWD:/work" pal-code pal cli               # or the terminal
+```
+
+A local model on the host: add `-e PAL__LOCAL_LLM__HOST=http://host.docker.internal:11434 --add-host host.docker.internal:host-gateway`.
+`docker compose up --build` does the same as the run line above.
+
+### On Windows or macOS (without Docker)
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate                 # macOS: source .venv/bin/activate
+pip install -e ".[dev]"                 # the lockfile is for Linux; this resolves the same versions for your system
+python -m pytest -q
+pal cli
+```
+
+After changing dependencies in `pyproject.toml`, regenerate the lockfile:
+`uv pip compile pyproject.toml --extra dev --python-version 3.12 --python-platform x86_64-manylinux_2_28 --generate-hashes -o requirements.lock`
+
 ### What `pal cli` and `pal web` set up, every time they start
 
 ```
@@ -307,7 +364,7 @@ macOS and Windows columns are covered by code that avoids POSIX-only calls and b
 
 ```bash
 pip install -e ".[dev,full]"
-pytest            # ~470 tests, no network, no real model
+pytest            # ~1,800 tests, no network, no real model
 ruff check src tests
 mypy
 ```

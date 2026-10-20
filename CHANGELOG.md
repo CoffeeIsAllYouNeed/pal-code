@@ -2,6 +2,9 @@
 
 ## 0.1.5
 
+- Rebuildable from scratch: Python 3.12 pinned (`.python-version`, the Docker image), every dependency locked with its hash
+  (`requirements.lock`), a Dockerfile with `app` and `test` targets, `.env.example` with every setting, and CI jobs that install from the
+  lockfile and build and test the image.
 - pal cli keeps the start screen with the logo and the chatbox (agent and model dropdowns, mic); Build is tell mode (Pal writes code), Ask is
   chat mode. Commands start with \ and are suggested in the chatbox as you type (the old /commands still work); @file loads a file.
 - While Pal writes, the window shows the prompt, the reply as it streams (no code: the files are listed) and the files being built with their

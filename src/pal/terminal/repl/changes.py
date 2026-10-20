@@ -13,6 +13,7 @@ import threading
 import time
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 from pal.terminal.repl import term
 from pal.terminal.repl.term import BOLD, WHITE, Exit, accent, c, out, spinner
@@ -371,13 +372,14 @@ def run_script(script: str, cwd: Path) -> tuple[bool, int, str, bool]:
     """Run the commands in the project folder, output shown as it comes. (success, exit status, output, interrupted)."""
     lines = _script_lines(script)
     env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1", "PYTHONUNBUFFERED": "1"}
-    if os.name == "nt":
+    kw: dict[str, Any]
+    if sys.platform == "win32":
         body = "\r\n".join(["@echo off"] + [f"{ln}\r\nif errorlevel 1 exit /b %errorlevel%" for ln in lines if ln.strip()])
         fd, path = tempfile.mkstemp(suffix=".cmd", prefix="pal_apply_")
         os.write(fd, body.encode("utf-8"))
         os.close(fd)
         args = ["cmd.exe", "/d", "/c", path]
-        kw: dict = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}       # type: ignore[attr-defined]
+        kw = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
     else:
         shell = os.environ.get("SHELL") or "/bin/bash"
         if not shutil.which(shell) and not Path(shell).exists():
@@ -430,8 +432,8 @@ def run_script(script: str, cwd: Path) -> tuple[bool, int, str, bool]:
 
 def _signal(proc, sig) -> None:
     try:
-        if os.name == "nt":
-            proc.send_signal(signal.CTRL_BREAK_EVENT if sig == signal.SIGINT else sig)   # type: ignore[attr-defined]
+        if sys.platform == "win32":
+            proc.send_signal(signal.CTRL_BREAK_EVENT if sig == signal.SIGINT else sig)
         else:
             os.killpg(proc.pid, sig)
     except (OSError, ValueError):

@@ -93,11 +93,11 @@ def strip(text: str) -> str:
 # -- output -----------------------------------------------------------------------------------------------------------------------
 def enable_vt() -> None:
     """Let the Windows console draw escape codes (Windows 10 and later)."""
-    if os.name != "nt":
+    if sys.platform != "win32":
         return
     try:
         import ctypes
-        k = ctypes.windll.kernel32  # type: ignore[attr-defined]
+        k = ctypes.windll.kernel32
         for handle in (-11, -12):
             h = k.GetStdHandle(handle)
             mode = ctypes.c_ulong()
@@ -449,7 +449,7 @@ def get_key() -> str:
         if not line:
             return "ctrl-c"
         return line[:1] if line.strip() else "enter"
-    if os.name == "nt":
+    if sys.platform == "win32":
         import msvcrt
         getwch = vars(msvcrt)["getwch"]             # Windows only (mypy checks on Linux, where msvcrt has no getwch)
         ch = getwch()

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import shutil
+import re
 import subprocess
 
 from pal.input_converters.components.base import ConversionError
@@ -84,4 +85,6 @@ def convert(ext: str, raw: bytes) -> str:
     if p.returncode != 0:
         err = p.stderr.decode("utf-8", errors="replace").strip().splitlines()
         raise ConversionError(f"pandoc could not read the file ({err[-1] if err else 'unknown error'})") from None
-    return p.stdout.decode("utf-8", errors="replace")
+    text = p.stdout.decode("utf-8", errors="replace")
+    # pandoc 2.x pads list markers ("-   one"); pandoc 3 writes "- one". The same markdown from every version:
+    return re.sub(r"^([ \t]*)([-*+]|\d+[.)])[ \t]{2,}(?=\S)", r"\1\2 ", text, flags=re.M)

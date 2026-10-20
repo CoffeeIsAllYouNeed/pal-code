@@ -147,7 +147,7 @@ def _ram_gb(system: str) -> float:
         if system == "Darwin":
             out = _run(["sysctl", "-n", "hw.memsize"])
             return round(int(out.strip()) / 1024**3, 1) if out.strip() else 0.0
-        if system == "Windows":
+        if sys.platform == "win32":
             import ctypes
 
             class MEMORYSTATUSEX(ctypes.Structure):
@@ -156,10 +156,12 @@ def _ram_gb(system: str) -> float:
                             ("ullTotalVirtual", ctypes.c_ulonglong), ("ullAvailVirtual", ctypes.c_ulonglong), ("sullAvailExtendedVirtual", ctypes.c_ulonglong)]
             stat = MEMORYSTATUSEX()
             stat.dwLength = ctypes.sizeof(MEMORYSTATUSEX)
-            ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(stat))  # type: ignore[attr-defined]
+            ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(stat))
             return round(stat.ullTotalPhys / 1024**3, 1)
     except (OSError, ValueError, AttributeError):
         pass
+    if sys.platform == "win32":
+        return 0.0
     try:
         return round(os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES") / 1024**3, 1)
     except (ValueError, OSError, AttributeError):

@@ -13,13 +13,14 @@ def process_memory() -> dict:
         return {"rss_mb": round(rss / 1048576, 1), "peak_rss_mb": None, "source": "psutil"}
     except Exception:  # noqa: BLE001  (not installed, or not allowed)
         pass
-    try:
-        import resource
-        peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        peak_mb = peak / 1048576 if sys.platform == "darwin" else peak / 1024        # macOS reports bytes, Linux kilobytes
-        return {"rss_mb": None, "peak_rss_mb": round(peak_mb, 1), "source": "resource"}
-    except Exception:  # noqa: BLE001  (Windows has no `resource`)
-        pass
+    if sys.platform != "win32":                                                      # Windows has no `resource`
+        try:
+            import resource
+            peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            peak_mb = peak / 1048576 if sys.platform == "darwin" else peak / 1024    # macOS reports bytes, Linux kilobytes
+            return {"rss_mb": None, "peak_rss_mb": round(peak_mb, 1), "source": "resource"}
+        except Exception:  # noqa: BLE001
+            pass
     if sys.platform == "win32":                                                      # not tested outside Windows
         try:
             import ctypes
@@ -32,8 +33,8 @@ def process_memory() -> dict:
                             ("PagefileUsage", ctypes.c_size_t), ("PeakPagefileUsage", ctypes.c_size_t)]
             c = Counters()
             c.cb = ctypes.sizeof(c)
-            handle = ctypes.windll.kernel32.GetCurrentProcess()  # type: ignore[attr-defined]
-            if ctypes.windll.psapi.GetProcessMemoryInfo(handle, ctypes.byref(c), c.cb):  # type: ignore[attr-defined]
+            handle = ctypes.windll.kernel32.GetCurrentProcess()
+            if ctypes.windll.psapi.GetProcessMemoryInfo(handle, ctypes.byref(c), c.cb):
                 return {"rss_mb": round(c.WorkingSetSize / 1048576, 1), "peak_rss_mb": round(c.PeakWorkingSetSize / 1048576, 1), "source": "win32"}
         except Exception:  # noqa: BLE001
             pass

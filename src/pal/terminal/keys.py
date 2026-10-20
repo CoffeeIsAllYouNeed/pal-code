@@ -23,7 +23,7 @@ class EscToStop:
     def __enter__(self) -> EscToStop:
         if not self.enabled:
             return self
-        if os.name != "nt":
+        if sys.platform != "win32":
             try:
                 import termios
                 import tty
@@ -41,7 +41,7 @@ class EscToStop:
         self._stop.set()
         if self._thread is not None:
             self._thread.join(0.5)
-        if self._saved is not None:
+        if self._saved is not None and sys.platform != "win32":
             try:
                 import termios
                 termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, self._saved)
@@ -54,16 +54,16 @@ class EscToStop:
         _thread.interrupt_main()
 
     def _watch(self) -> None:
-        if os.name == "nt":
+        if sys.platform == "win32":
             import msvcrt
             while not self._stop.is_set():
-                if msvcrt.kbhit():  # type: ignore[attr-defined]
-                    ch = msvcrt.getwch()  # type: ignore[attr-defined]
+                if msvcrt.kbhit():
+                    ch = msvcrt.getwch()
                     if ch == "\x1b":
                         self._fire()
                         return
-                    if ch in ("\x00", "\xe0") and msvcrt.kbhit():  # type: ignore[attr-defined]
-                        msvcrt.getwch()  # type: ignore[attr-defined]   # the second half of an arrow or function key
+                    if ch in ("\x00", "\xe0") and msvcrt.kbhit():
+                        msvcrt.getwch()   # the second half of an arrow or function key
                 time.sleep(0.05)
             return
         import select

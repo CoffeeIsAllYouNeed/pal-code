@@ -20,6 +20,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -210,9 +211,9 @@ def save_default_config(plan: Plan) -> None:
 
 def pid_alive(pid: int) -> bool:
     """Is that process still running? (Never sends it a signal: on Windows os.kill would end it.)"""
-    if os.name == "nt":
+    if sys.platform == "win32":
         import ctypes
-        kernel = ctypes.windll.kernel32  # type: ignore[attr-defined]
+        kernel = ctypes.windll.kernel32
         handle = kernel.OpenProcess(0x1000, False, pid)          # PROCESS_QUERY_LIMITED_INFORMATION
         if not handle:
             return False

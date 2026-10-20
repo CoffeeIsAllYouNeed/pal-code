@@ -1,0 +1,163 @@
+# Pal defaults. Override any key with your own file (pal serve --config my.yaml, or the
+# PAL_CONFIG env var) or with env vars: PAL__SERVER__PORT=8080, PAL__MEMORY__ENABLED=false.
+
+# Local LLM: never shown to the user as a chat model. It routes tasks, applies the input savers and
+# verifies them, and answers easy tasks itself.
+local_llm:
+  enabled: true            # false on a computer without a GPU: no local model; routing, input trimming and checking are off
+  backend: ollama
+  model: llama3
+  host: http://localhost:11434
+
+# Optional separate model for the verification step. null = reuse local_llm.
+verifier_llm: null
+
+# "rules": one local-LLM pass driven by input_rules. "steps": the five methods below, one at a time.
+input_mode: rules
+input_rules: input_savers/INPUT_RULES.md
+input_methods:
+  - remove_articles
+  - remove_punctuation
+  - remove_fillers
+  - abbreviate
+  - collapse_whitespace
+
+# Output saver: sent to the API model in the system prompt on every request.
+output_config: agent_constraints/components/AGENT_OUTPUT.md
+base_system_prompt: "You are a helpful assistant."
+
+# heuristic = estimate tokens locally (no network). provider = ask the model's tokenizer endpoint:
+# exact, but adds a network round trip for every count.
+token_counter: heuristic
+
+# Where memory, documents and indexed projects live. null = ~/.pal (or PAL_HOME).
+storage_dir: null
+
+# Easy tasks are answered by the local LLM itself. Attachments, code and long text always go to the API.
+task_routing:
+  enabled: true
+  default: auto            # auto | local | api
+  max_local_chars: 400
+  max_local_lines: 6
+  history_messages: 6
+
+# Attach a zip of source code: indexed once, locally (graphify, AST only). Each request then carries
+# only the graph excerpts relevant to the question.
+knowledge_graph:
+  enabled: true
+  dir: null
+  budget_tokens: 1500
+  max_slice_lines: 40
+  min_code_file_chars: 8000
+  max_zip_files: 3000
+  max_zip_mb: 50
+
+# Context paging: the last hot_turns turns are always sent; older turns come back only if relevant.
+context:
+  enabled: true
+  hot_turns: 6
+  recall_turns: 2
+  recall_threshold: 0.35
+  max_history_tokens: 6000
+
+# Cross-session memory: your messages are stored on this machine and relevant ones from earlier
+# sessions are added to a request. Turn off to store nothing.
+memory:
+  enabled: true
+  dir: null
+  profile: default
+  recall_notes: 3
+  min_score: 0.3
+  budget_tokens: 300
+  min_chars: 25
+  block_limit: 200
+
+# The Studio (a bot plans a product and builds it). Ollama's own default context window is small and it silently cuts a longer prompt, so these
+# are sent with every local model call. A bigger window needs more memory.
+studio:
+  num_ctx: 16384
+  planner_num_ctx: 8192
+  max_runs: 6
+
+# Attached documents (PDF, Word, ...) are indexed once. Small ones are sent in full on the upload
+# turn; big ones as a preview plus an outline. Later turns get only the relevant chunks.
+documents:
+  enabled: true
+  inline_max_tokens: 2500
+  preview_tokens: 800
+  chunk_tokens: 350
+  retrieve_chunks: 3
+  budget_tokens: 1200
+  min_score: 0.15
+  max_file_chars: 500000    # bigger attachments are rejected (after conversion to markdown)
+
+# Tools the API model may call (calculator, document and source lookup). Read-only.
+tools:
+  network: false             # allow wikipedia and arxiv lookups (the query text is sent to those sites)
+  # Third-party service tools from the AIOS paper. Off by default: your query leaves this machine, most need a key, some cost money.
+  # Names: google_search (through SerpApi: SERPAPI_API_KEY), wolfram_alpha (WOLFRAM_APP_ID), currency_convert and moon_phase (no key),
+  # words_api (RAPIDAPI_KEY), image_caption, visual_question_answering, text_to_image, text_to_audio, speech_to_text (HF_TOKEN).
+  # Or: [all]. See docs/TOOLS.md.
+  services: []
+  hf_models: {}              # e.g. {text_to_image: "owner/model"}: which Hugging Face model a media tool uses
+  rapidapi_hosts: {}         # e.g. {words_api: "your-listing.p.rapidapi.com"}: if your RapidAPI subscription shows another host
+  save_files: true           # let an agent that has save_file write new files to its workspace
+  enabled: true
+  max_rounds: 3
+  max_result_tokens: 800
+  direct_answers: true     # pure arithmetic and "what time is it" are answered with no model call
+
+# Agent application layer: coding and documentation agents. Each reads its own key from the environment
+# (GEMINI_API_KEY_CODING, GEMINI_API_KEY_DOCS, or a shared GEMINI_API_KEY). All token savers still apply.
+agents:
+  enabled: true
+  model: gemini-3.5-flash
+
+# Scheduling. API model: strictly first come, first served, one line per API key (with one key, chat and every agent share
+# one line). Local model: preemptive priority: agent preparation first, then chat, then other (background) work; first
+# come first served inside each class. File conversion and code-graph building run in code, a few at a time.
+scheduler:
+  enabled: true
+  local_max_pauses: 2          # a local job is paused at most this often, then it runs to the end
+  other_stale_seconds: 600     # a background job that waited this long is dropped
+  code_workers: 2
+  max_queue: 100
+  api_min_interval:            # seconds between API call starts, per provider (free tiers allow few per minute)
+    gemini: 4.0
+  api_retry_429: 2             # on a rate-limit error: wait, then retry this many times
+  api_backoff_seconds: 5.0
+  free_model_interval: 3.0     # seconds between calls to an OpenRouter ":free" model
+
+# Fallback: if your own provider is rate-limited or down, answer with a second model instead. Needs the fallback provider's key
+# in the environment (OPENROUTER_API_KEY) and a model name; leave model empty to keep it off.
+fallback:
+  enabled: false
+  provider: openrouter
+  model: ""                  # e.g. an OpenRouter model whose name ends in :free (check openrouter.ai/models)
+  for_agents: true
+
+# Non-LLM queries (file operations, network requests, system facts) go to the OS kernel (Ubuntu/Linux), never to a
+# model. Files stay inside a per-agent workspace; private network addresses are blocked.
+os_kernel:
+  enabled: true
+  workspace_dir: null          # null = ~/.pal/workspaces
+  max_read_bytes: 1000000
+  max_write_bytes: 5000000
+  max_binary_bytes: 20000000   # largest image or audio file, uploaded or downloaded
+  allow_private_network: false
+  net_timeout_seconds: 10.0
+  net_max_bytes: 1000000
+  allowed_hosts: []            # empty = any public host
+
+metrics:
+  enabled: true
+  max_records: 1000
+
+server:
+  host: 127.0.0.1          # keep on localhost unless you put authentication in front
+  port: 5000
+  threads: 8
+  max_upload_mb: 20
+  max_sessions: 200
+  session_ttl_minutes: 240
+  log_level: INFO

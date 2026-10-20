@@ -1,0 +1,1 @@
+{"name": "studio-ui-tests", "private": true, "description": "Runs the Studio page in jsdom against the real server; `npm install` here to enable tests/studio/test_ui.py", "devDependencies": {"jsdom": "^30.1.1"}}

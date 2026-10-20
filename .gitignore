@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+venv/
+.venv/
+build/
+dist/
+graphify-out/
+.env
+experiment_output/
+node_modules/
+tests/studio/ui/node_modules

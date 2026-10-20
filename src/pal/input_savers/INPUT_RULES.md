@@ -1,0 +1,2 @@
+Edit input. Skip any change altering context. Critical: context must not change.
+Remove: articles, filler, punctuation, pleasantries, hedging, extra whitespace. Paraphrase fewest words same meaning. Never drop not/never/no/only/except: meaning flip worse than tokens saved. Numbers, units exact. Imperative sentences. Instead of "Sure! I'd be happy to help. Issue likely caused by..." write "Bug in auth middleware". One word when one word enough. Never remove negation words. Never change user-pasted or attached file content. If original shorter than result, use original.

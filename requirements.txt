@@ -1,0 +1,2 @@
+# Dependencies live in pyproject.toml. This file exists for tools that only understand requirements.txt.
+-e .[full]

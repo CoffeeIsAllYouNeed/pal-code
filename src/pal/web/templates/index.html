@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pal code</title>
+<link rel="icon" type="image/png" href="/static/pal-logo-32.png">
+<link rel="apple-touch-icon" href="/static/pal-logo-256.png">
+<link rel="stylesheet" href="/static/inter.css">
+<style>
+:root{color-scheme:dark;--bg:#000;--surface:#141414;--ink:#fff;--muted:#a3a3a3;--line:#2e2e2e;--accent:#E50914;--kept:#FF4D57;--rev:#d9a441;--skip:#8a8a8a}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 "Inter",system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:wrap}
+header h1{font-size:16px;margin:0 8px 0 0;display:flex;align-items:center;gap:8px}
+.logo{width:28px;height:28px;object-fit:contain}
+.msg .who .av{width:18px;height:18px;object-fit:contain;vertical-align:-4px;margin-right:6px}
+select,input,textarea,button{font:inherit;color:inherit}
+select,input[type=text],input[type=password]{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 8px}
+button{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 12px;cursor:pointer}
+.linkstudio{border:1px solid var(--line);border-radius:6px;padding:6px 12px;text-decoration:none;color:var(--ink);background:var(--surface)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sp{flex:1}
+details.pop{position:relative}
+details.pop>summary{list-style:none;cursor:pointer;border:1px solid var(--line);border-radius:6px;padding:6px 12px;background:var(--surface)}
+details.pop>summary::-webkit-details-marker{display:none}
+details.pop .box{position:absolute;right:0;top:110%;z-index:5;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;min-width:270px;box-shadow:0 6px 24px rgba(0,0,0,.7)}
+.box label{display:flex;gap:8px;align-items:center;padding:3px 0}
+.box .k{width:100%;margin-top:6px}
+main{flex:1;display:flex;min-height:0}
+#chatcol{flex:1;display:flex;flex-direction:column;min-width:0}
+#log{flex:1;overflow-y:auto;padding:20px 16px}
+.wrapc{max-width:760px;margin:0 auto}
+.msg{margin:0 0 18px}
+.msg .who{font-size:12px;color:var(--muted);margin-bottom:2px}
+.msg .body{white-space:pre-wrap;word-wrap:break-word}
+.msg.user .body{background:rgba(229,9,20,.22);border-radius:10px;padding:8px 12px;display:inline-block;max-width:100%}
+.meta{font-size:12px;color:var(--muted);margin-top:4px}
+.meta summary{cursor:pointer}
+pre{white-space:pre-wrap;word-wrap:break-word;background:#1a1a1a;border:1px solid var(--line);border-radius:6px;padding:8px;margin:4px 0 0;font:12px/1.4 ui-monospace,Consolas,monospace}
+.err{color:#FF4D57}
+#mic{border:1px solid var(--line);background:transparent;border-radius:10px;padding:0 10px;cursor:pointer}#mic.live{background:var(--red,#E50914);color:#fff}
+#composer{border-top:1px solid var(--line);background:var(--surface);padding:10px 16px}
+#chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.chip{font-size:12px;background:#262626;border-radius:12px;padding:2px 4px 2px 10px}
+.chip button{border:0;background:none;padding:0 6px;color:var(--muted)}
+#row{display:flex;gap:8px;align-items:flex-end}
+#msg{flex:1;resize:none;border:1px solid var(--line);border-radius:8px;padding:8px 10px;max-height:200px;background:var(--surface)}
+#expin h2,#expview h2{font-size:17px;margin:0 0 6px}
+#etext{width:100%;height:110px;border:1px solid var(--line);border-radius:8px;padding:8px;resize:vertical}
+.opts{display:flex;flex-wrap:wrap;gap:6px 14px;margin:8px 0;align-items:center}
+.opts label{display:flex;gap:6px;align-items:center}
+.sum{margin:14px 0 6px;font-size:17px}
+.sum b{color:var(--kept)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:600;color:var(--muted);padding:4px 6px;border-bottom:1px solid var(--line)}
+td{padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.step{cursor:pointer}
+.st{font-weight:600}.st.kept{color:var(--kept)}.st.reverted{color:var(--rev)}.st.skipped{color:var(--skip)}
+.bar{height:6px;background:#2e2e2e;border-radius:3px;margin-top:4px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px}
+.note{color:var(--muted);font-size:12px;margin-top:6px}
+#tabs{display:flex;gap:2px;padding:0 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.tab{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:10px 16px;font-weight:600;color:var(--muted)}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.view{flex:1;min-height:0;display:flex;flex-direction:column}
+.view[hidden]{display:none}
+#savebar{display:flex;gap:6px 18px;flex-wrap:wrap;align-items:center;padding:6px 16px;background:#1a1a1a;border-bottom:1px solid #2e2e2e;font-size:13px;color:#FF4D57}
+#savebar b{font-size:15px}
+#savebar .dim{color:var(--muted)}
+#expview{overflow-y:auto}
+#expview .inner{max-width:920px;margin:0 auto;padding:20px 16px 40px;width:100%}
+#dtable td.num,#dtable th.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+#dtable tr.run td{background:#f4f7fd}
+.badge{display:inline-block;font-size:11px;border-radius:9px;padding:1px 8px;background:#262626}
+.badge.local{background:#e3f4ea;color:#1f7a4d}.badge.tool{background:#fdf1dc;color:#8a5a00}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:16px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card .lab{font-size:12px;color:var(--muted)}
+.card .big{font-size:30px;font-weight:700;line-height:1.15;color:var(--kept)}
+.card .big.bad{color:var(--rev)}
+.card .sub{font-size:13px;color:var(--muted);margin-top:4px}
+.mt{margin-top:18px}
+.result{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<header>
+  <h1><img src="/static/pal-logo-64.png" alt="" class="logo" width="28" height="28">pal <span style="color:#E50914">code</span></h1>
+  <select id="agent" aria-label="Agent" title="Agents use Gemini with their own key from your .env file. All token savers still apply."><option value="">General chat</option></select>
+  <select id="llmmode" aria-label="How to reach models" title="Explore: one OpenRouter key reaches hundreds of models, some free (your prompts pass through OpenRouter). Own key: your key for one provider, direct."></select>
+  <select id="prov" aria-label="Provider"></select>
+  <label id="freebox" hidden title="Only list free models" style="font-size:12px"><input type="checkbox" id="freeonly"> free only</label>
+  <input id="model" type="text" list="mlist" placeholder="model id" size="26" aria-label="Model">
+  <datalist id="mlist"></datalist>
+  <details class="pop"><summary id="msum">Input savers</summary>
+    <div class="box">
+      <label><input type="radio" name="mode" value="rules" checked> Rules file (one pass)</label>
+      <label><input type="radio" name="mode" value="steps"> Step methods</label>
+      <div id="mlistbox" hidden></div>
+      <div class="note">Pasted text, code, URLs and attached files are never edited. A zip of source code is indexed as a graph; big documents are indexed too; only relevant excerpts are sent.</div>
+      <div class="note" id="lstat">Local LLM: checking…</div></div></details>
+  <select id="route" aria-label="Routing" title="Who answers: easy tasks go to the local LLM in auto mode">
+    <option value="auto">Routing: auto</option><option value="local">Local LLM only</option><option value="api">API model only</option></select>
+  <details class="pop"><summary>API key</summary>
+    <div class="box"><div class="note">Kept in this browser tab only. Or set the provider's env var.</div>
+      <input id="key" type="password" class="k" placeholder="paste key" autocomplete="off"></div></details>
+  <details class="pop"><summary id="statsum">Stats</summary>
+    <div class="box"><pre id="statbox" style="white-space:pre-wrap;font-size:12px;margin:0">Loading…</pre>
+      <div class="note"><button id="statrefresh">Refresh</button> <button id="statreset">Reset</button></div></div></details>
+  <details class="pop"><summary id="memsum">Memory</summary>
+    <div class="box"><div class="note" id="memnote">Checking…</div>
+      <div class="note">Your messages are kept on this machine so later sessions can recall them. Secrets are skipped.</div>
+      <button id="memclear">Forget everything</button></div></details>
+  <span class="sp"></span>
+  <a href="/studio" class="linkstudio" title="Describe a product and let the bot plan and build it">Studio</a>
+  <button id="newchat">New chat</button>
+</header>
+<main>
+  <section id="chatcol">
+    <nav id="tabs" role="tablist"><button class="tab on" data-tab="chat" role="tab">Chat</button><button class="tab" data-tab="exp" role="tab">Experiment</button></nav>
+    <div id="chatview" class="view">
+      <div id="savebar" title="Estimates: characters / 4. Input savers, older turns left out, only relevant parts of documents and code, and turns answered without the API model."><span>Saved this chat: <b id="sv1">0</b> tokens (est.)</span><span><b id="sv2">0</b> API calls avoided</span><span class="dim" id="sv3">API used: 0 in / 0 out</span></div>
+    <div id="log"><div class="wrapc" id="msgs"></div></div>
+    <div id="composer"><div class="wrapc">
+      <div id="chips"></div>
+      <div id="row">
+        <button id="attach" title="Attach files" aria-label="Attach files">+</button>
+        <input type="file" id="file" multiple hidden>
+        <textarea id="msg" rows="1" placeholder="Message. Paste text or files. Enter sends, Shift+Enter adds a line."></textarea>
+        <button id="mic" title="Speak instead of typing" aria-label="Speak instead of typing" aria-pressed="false">🎙</button>
+        <button id="send" class="primary">Send</button>
+      </div></div></div>
+    </div>
+    <div id="expview" class="view" hidden><div class="inner">
+      <h2>Demo: plan a launch in 6 messages</h2>
+      <p class="note" style="margin:0 0 10px">Sends the same 6 messages twice to the model chosen in the header: once the way a plain chat app does it (whole history every time, no savers), once through Pal. Then compares the tokens the API reports and the time taken. About 12 API calls. It uses no memory and is not added to Stats.</p>
+      <div class="opts"><button id="drun" class="primary">Run demo</button><span id="dstat" class="note"></span></div>
+      <table id="dtable" hidden><thead><tr><th>#</th><th>Message</th><th>Pal did</th><th class="num">Plain tokens<br>in / out</th><th class="num">Pal tokens<br>in / out</th><th class="num">Plain s</th><th class="num">Pal s</th></tr></thead><tbody id="dbody"></tbody></table>
+      <div id="dsum"></div>
+      <details class="mt"><summary>Test the input savers on your own text</summary>
+    <textarea id="etext" placeholder="Text to test the savers on"></textarea>
+    <div class="opts">
+      <label><input type="checkbox" id="ecall"> also call the API model, raw vs saved</label>
+      <button id="euse">Use chat box text</button>
+    </div>
+    <button id="erun" class="primary">Run experiment</button>
+    <div id="eout"></div>
+      </details>
+    </div></div>
+  </section>
+</main>
+<script src="/static/voice.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let sid=(sessionStorage.sid||=crypto.randomUUID());
+let files=[],methods=[],cfg=null,pasted=[],mode='rules';
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const MODELS={anthropic:['claude-sonnet-5-5','claude-haiku-4-5-20251001','claude-opus-5-5'],gemini:['gemini-3.5-flash','gemini-2.5-flash','gemini-2.5-flash-lite']};
+
+function sumMethods(){methods=[...document.querySelectorAll('.mchk:checked')].map(x=>x.value);
+  $('msum').textContent=mode==='rules'?'Input savers: rules file':`Input savers: ${methods.length}/${cfg.methods.length} steps`}
+document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=()=>{mode=document.querySelector('input[name=mode]:checked').value;$('mlistbox').hidden=mode!=='steps';sumMethods()});
+let PROVS={},LLM_MODES=[],CATALOGUE=[];
+function applyLlmMode(){const key=$('llmmode').value,m=LLM_MODES.find(x=>x.key===key)||{providers:[]};sessionStorage.llmmode=key;
+  const names=m.providers.map(p=>p.name);
+  $('prov').innerHTML=names.map(p=>`<option value="${p}">${p}${PROVS[p]?' (key set)':''}</option>`).join('');
+  const keep=names.includes(sessionStorage.prov)?sessionStorage.prov:(names.find(p=>PROVS[p])||names[0]);$('prov').value=keep;sessionStorage.prov=keep;
+  $('llmmode').title=m.summary||'';$('freebox').hidden=key!=='explore';setModels();if(key==='explore')loadCatalogue()}
+async function loadCatalogue(){try{const free=$('freeonly').checked?'&free=1':'';const d=await (await fetch('/api/llm/models?limit=500'+free)).json();
+  if(!d.models)throw new Error(d.error||'no models');CATALOGUE=d.models;$('model').placeholder='pick one of '+CATALOGUE.length+' models, or type a name';
+  $('mlist').innerHTML=CATALOGUE.map(m=>`<option value="${esc(m.id)}" label="${esc(m.label)}">`).join('')}
+  catch(e){CATALOGUE=[];$('model').placeholder='the model list could not be read: type a model name'}}
+function setModels(){const p=$('prov').value;$('mlist').innerHTML=(MODELS[p]||[]).map(m=>`<option value="${m}">`).join('');$('model').value=sessionStorage['model_'+p]||(MODELS[p]||[''])[0];$('key').value=sessionStorage['key_'+p]||''}
+
+fetch('/api/config').then(r=>r.json()).then(c=>{
+  $('agent').insertAdjacentHTML('beforeend',(c.agents||[]).map(a=>`<option value="${a.id}" ${a.ready?'':'disabled'} title="${esc(a.description)}">${esc(a.name)}${a.ready?'':' (set '+a.key_env+')'}</option>`).join(''));
+  $('agent').value=sessionStorage.agent||'';applyAgent();
+  cfg=c;mode=c.mode;if(c.routing){$('route').value=c.routing.default;$('route').disabled=!c.routing.enabled}document.querySelector(`input[name=mode][value=${mode}]`).checked=true;$('mlistbox').hidden=mode!=='steps';
+  PROVS=c.providers;LLM_MODES=c.llm_modes||[];
+  $('llmmode').innerHTML=LLM_MODES.map(m=>`<option value="${m.key}" title="${esc(m.summary)}">${esc(m.title)}</option>`).join('');
+  $('llmmode').value=sessionStorage.llmmode||c.llm_mode||'own_key';applyLlmMode();
+  $('mlistbox').innerHTML=c.methods.map(m=>`<label><input type="checkbox" class="mchk" value="${m.id}" checked> ${esc(m.name)}</label>`).join('');
+  document.querySelectorAll('.mchk').forEach(x=>x.onchange=sumMethods);
+  sumMethods();setModels();
+});
+fetch('/api/local_status').then(r=>r.json()).then(s=>{$('lstat').textContent='Local LLM: '+s.detail;if(s.ok===false)$('lstat').classList.add('err')});
+$('prov').onchange=()=>{sessionStorage.prov=$('prov').value;setModels();if($('llmmode').value==='explore'&&CATALOGUE.length)loadCatalogue()};
+$('llmmode').onchange=applyLlmMode;$('freeonly').onchange=loadCatalogue;
+$('model').onchange=()=>sessionStorage['model_'+$('prov').value]=$('model').value;
+$('key').oninput=()=>sessionStorage['key_'+$('prov').value]=$('key').value;
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+  $('chatview').hidden=t.dataset.tab!=='chat';$('expview').hidden=t.dataset.tab!=='exp'});
+$('euse').onclick=()=>$('etext').value=$('msg').value;
+
+function chips(){$('chips').innerHTML=files.map((f,i)=>`<span class="chip">${esc(f.name)}<button data-i="${i}" aria-label="Remove ${esc(f.name)}">×</button></span>`).join('');
+  $('chips').querySelectorAll('button').forEach(b=>b.onclick=()=>{files.splice(+b.dataset.i,1);chips()})}
+$('attach').onclick=()=>$('file').click();
+$('file').onchange=e=>{files.push(...e.target.files);e.target.value='';chips()};
+function trackPaste(e){const fs=[...(e.clipboardData?.files||[])];
+  if(fs.length){e.preventDefault();files.push(...fs);chips();return}
+  const t=e.clipboardData?.getData('text');if(t&&t.trim().length>=20)pasted.push(t)}
+$('msg').addEventListener('paste',trackPaste);$('etext').addEventListener('paste',trackPaste);
+$('msg').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=Math.min(200,e.target.scrollHeight)+'px'});
+$('msg').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+$('send').onclick=send;
+if(window.palVoice)palVoice($('mic'),$('msg'),m=>{if(m)add('assistant','Pal',m)});
+$('newchat').onclick=async()=>{await fetch('/api/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:sid})});sid=sessionStorage.sid=crypto.randomUUID();$('msgs').innerHTML='';refreshSave()};
+
+function add(cls,who,body){const d=document.createElement('div');d.className='msg '+cls;d.innerHTML=`<div class="who">${cls==='assistant'?'<img class="av" src="/static/pal-logo-32.png" alt="">':''}${who}</div><div class="body">${esc(body)}</div>`;$('msgs').appendChild(d);$('log').scrollTop=1e9;return d}
+
+async function send(){
+  const text=$('msg').value.trim();if(!text&&!files.length)return;
+  const fd=new FormData();
+  fd.append('session_id',sid);fd.append('provider',$('prov').value);fd.append('model',$('model').value.trim());
+  fd.append('api_key',$('key').value);fd.append('message',text);fd.append('mode',mode);fd.append('route',$('route').value);fd.append('agent',$('agent').value);fd.append('pasted',JSON.stringify(pasted));
+  methods.forEach(m=>fd.append('methods',m));if(!methods.length)fd.append('methods','none');
+  files.forEach(f=>fd.append('files',f));
+  add('user','You',text+(files.length?`\nAttached: ${files.map(f=>f.name).join(', ')}`:''));
+  $('msg').value='';$('msg').style.height='auto';files=[];pasted=[];chips();
+  $('send').disabled=true;const w=add('assistant','Model','Working…');
+  try{
+    const r=await fetch('/api/chat',{method:'POST',body:fd});const d=await r.json();
+    if(!r.ok){w.querySelector('.body').innerHTML=`<span class="err">${esc(d.error)}</span>`;return}
+    const s=d.saver;
+    w.querySelector('.body').textContent=d.reply;
+    window.lastCtx=d.context||null;
+    if(d.fallback||(d.files&&d.files.length)){const n=document.createElement('div');n.style.cssText='font-size:12px;color:var(--muted);margin-top:6px';
+      if(d.fallback)n.append('Answered by the fallback model '+d.fallback.provider+'/'+d.fallback.model+' after '+d.fallback.reason+'. ');
+      (d.files||[]).forEach(p=>{const l=document.createElement('a');l.href='/api/workspace/file?session_id='+encodeURIComponent(sid)+'&path='+encodeURIComponent(p);l.textContent='Download '+p;l.setAttribute('download','');l.style.marginRight='10px';n.append(l)});
+      w.querySelector('.body').after(n)}
+    const errs=(d.file_errors||[]).map(e=>`<div class="err">${esc(e)}</div>`).join('');
+    const L=d.latency||{};
+    const lat=L.total!==undefined?` ${L.total}s total (local ${L.local}s, API ${L.api}s).`:'';
+    const bits=[];
+    if(d.context&&d.context.tokens_saved)bits.push(`history: sent ${d.context.turns_sent} of ${d.context.turns_total} earlier turns (~${d.context.tokens_saved} tok saved${d.context.recalled?`, ${d.context.recalled} recalled`:''})`);
+    if(d.graph)bits.push(`code graph: ~${d.graph.tokens} tok of excerpts instead of ~${d.graph.project_tokens}`);
+    if(d.documents&&d.documents.chunks)bits.push(`documents: ${d.documents.chunks} relevant parts (~${d.documents.tokens} tok) instead of ~${d.documents.indexed_tokens}`);
+    if(d.memory)bits.push(`memory: ${d.memory.notes} note(s) from earlier sessions`);
+    if(d.tools&&d.tools.length)bits.push(`tools: ${d.tools.map(t=>t.name+(t.ok?'':' (failed)')).join(', ')}`);
+    const extra=bits.length?`<div>${bits.map(esc).join('<br>')}</div>`:'';
+    const meta=d.handled_by==='tool'
+      ?`Answered without a model (${esc(d.route_reason)}).${lat}`
+      :d.handled_by==='local'
+      ?`Answered by the local LLM (${esc(d.route_reason)}). No API call. The API model sees this turn tagged [local-llm].${lat}`
+      :`API model. input ${d.input_tokens} tok, output ${d.output_tokens} tok. Savers cut ${s.tokens_saved} of ${s.tokens_original} tok in this message.${lat}${extra}
+      <details><summary>What was sent</summary><pre>${esc(d.sent)}</pre></details>`;
+    w.insertAdjacentHTML('beforeend',`${errs}<div class="meta">${meta}</div>`);
+    if(s&&!$('etext').value)$('etext').value=s.original;
+  }catch(e){w.querySelector('.body').innerHTML=`<span class="err">${esc(e.message)}</span>`}
+  finally{$('send').disabled=false;$('log').scrollTop=1e9;refreshSave()}
+}
+
+function applyAgent(){const on=!!$('agent').value;if(!$('msg').dataset.ph)$('msg').dataset.ph=$('msg').placeholder;sessionStorage.agent=$('agent').value;
+  ['prov','model','route'].forEach(i=>{$(i).disabled=on;$(i).style.opacity=on?.45:1});
+  $('msg').placeholder=on?($('agent').selectedOptions[0].title||'Ask the agent'):$('msg').dataset.ph}
+$('agent').onchange=applyAgent;
+async function refreshSave(){
+  try{const m=(await (await fetch('/api/metrics?session='+encodeURIComponent(sid))).json()).summary;
+    if(!m.turns){$('sv1').textContent='0';$('sv2').textContent='0';$('sv3').textContent='API used: 0 in / 0 out';return}
+    $('sv1').textContent=m.tokens_saved_estimate.total.toLocaleString();$('sv2').textContent=m.api_calls_avoided;
+    $('sv3').textContent=`API used: ${m.api_input_tokens.toLocaleString()} in / ${m.api_output_tokens.toLocaleString()} out`}
+  catch(e){}}
+refreshSave();
+
+const fmt=n=>Number(n).toLocaleString();
+const trunc=(t,n)=>t.length>n?t.slice(0,n-1)+'…':t;
+async function postJson(url,body){const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  let d={};try{d=await r.json()}catch(e){}return {ok:r.ok,d}}
+function demoRow(i,st){return document.getElementById('dr'+i)}
+function fillRow(r){
+  const n=r.naive,m=r.pal;
+  const label=m.route==='api'?'<span class="badge">API model</span>':m.route==='local'?'<span class="badge local">local model</span>':'<span class="badge tool">no model</span>';
+  const extra=[m.reduced_tokens_saved?`input cut ${m.reduced_tokens_saved}`:'',m.document_chunks?`${m.document_chunks} doc part(s)`:'',m.tools.length?`tool: ${m.tools.join(', ')}`:''].filter(Boolean).join(', ');
+  const el=document.getElementById('dr'+r.step);el.className='';
+  el.innerHTML=`<td>${r.step}</td><td>${esc(trunc(r.message,70))}</td><td>${label}${extra?`<div class="note">${esc(extra)}</div>`:''}</td><td class="num">${fmt(n.input_tokens)} / ${fmt(n.output_tokens)}</td><td class="num">${fmt(m.input_tokens)} / ${fmt(m.output_tokens)}</td><td class="num">${n.latency.toFixed(1)}</td><td class="num">${m.latency.toFixed(1)}</td>`}
+function showSummary(s){
+  const lat=s.latency_saved,latGood=lat>=0;
+  const notes=s.notes.map(x=>`<div class="note">${esc(x)}</div>`).join('');
+  $('dsum').innerHTML=`<div class="cards">
+    <div class="card"><div class="lab">Tokens saved (API-reported, all 6 messages)</div><div class="big ${s.tokens_saved>=0?'':'bad'}">${fmt(s.tokens_saved)} <span style="font-size:16px">(${s.tokens_saved_pct}%)</span></div>
+      <div class="sub">Plain ${fmt(s.naive.total_tokens)} tokens (${fmt(s.naive.input_tokens)} in, ${fmt(s.naive.output_tokens)} out)<br>Pal ${fmt(s.pal.total_tokens)} tokens (${fmt(s.pal.input_tokens)} in, ${fmt(s.pal.output_tokens)} out)<br>Input saved ${fmt(s.input_saved)}, output saved ${fmt(s.output_saved)}</div></div>
+    <div class="card"><div class="lab">Latency ${latGood?'saved':'added'} (total for the 6 messages)</div><div class="big ${latGood?'':'bad'}">${Math.abs(lat).toFixed(1)} s <span style="font-size:16px">(${Math.abs(s.latency_saved_pct)}%)</span></div>
+      <div class="sub">Plain ${s.naive.latency.toFixed(1)} s<br>Pal ${s.pal.latency.toFixed(1)} s, local model time included</div></div>
+    <div class="card"><div class="lab">What Pal did</div><div class="big" style="font-size:22px">${s.api_calls_avoided} of 6 API calls avoided</div>
+      <div class="sub">${s.pal.direct_answers} answered with no model, ${s.pal.local_answers} by the local model, ${s.pal.api_calls} by the API model${s.pal.tool_calls?`, ${s.pal.tool_calls} tool call(s)`:''}<br>Local model: ${esc(s.local.detail||'unknown')}</div></div></div>
+    ${notes}
+    <h2 class="mt">What we made</h2><div class="note">Pal's answer to the last message, built from all six.</div>
+    <div class="result" id="dresult">${esc(s.result)}</div>
+    <div class="opts"><button id="dcopy">Copy</button></div>
+    <details><summary>The same last message answered without Pal</summary><div class="result mt">${esc(s.result_naive)}</div></details>`;
+  $('dcopy').onclick=()=>navigator.clipboard.writeText(s.result).then(()=>$('dcopy').textContent='Copied')}
+$('drun').onclick=async()=>{
+  $('drun').disabled=true;$('dsum').innerHTML='';$('dstat').classList.remove('err');$('dstat').textContent='Starting…';
+  const body={provider:$('prov').value,model:$('model').value.trim(),api_key:$('key').value};
+  const st=await postJson('/api/demo/start',body);
+  if(!st.ok){$('dstat').textContent=st.d.error||'could not start';$('dstat').classList.add('err');$('drun').disabled=false;return}
+  const run=st.d.run_id;
+  $('dtable').hidden=false;
+  $('dbody').innerHTML=st.d.steps.map((x,i)=>`<tr id="dr${i+1}"><td>${i+1}</td><td>${esc(trunc(x.message,70))}${x.attachment?` <span class="badge">+ ${esc(x.attachment)}</span>`:''}</td><td colspan="5" class="note">waiting</td></tr>`).join('');
+  for(let i=1;i<=st.d.steps.length;i++){
+    $('dstat').textContent=`Message ${i} of ${st.d.steps.length}…`;
+    document.getElementById('dr'+i).className='run';document.getElementById('dr'+i).lastElementChild.textContent='running…';
+    const r=await postJson('/api/demo/step',{run_id:run,api_key:$('key').value});
+    if(!r.ok){$('dstat').textContent=`Stopped at message ${i}: ${r.d.error||'error'}`;$('dstat').classList.add('err');
+      await postJson('/api/demo/cancel',{run_id:run});$('drun').disabled=false;return}
+    fillRow(r.d.row);
+    if(r.d.done){showSummary(r.d.summary);$('dstat').textContent='Done.'}
+  }
+  $('drun').disabled=false};
+
+async function loadStats(){
+  try{const d=await (await fetch('/api/metrics')).json();const m=d.summary;
+    const mem=d.memory||{},nt=mem.notes||{},pr=mem.process||{},memLine=mem.notes?`memory: ${nt.notes} note(s) (${nt.ram_count} in RAM, ${nt.disk_count} on disk, RAM cache ${Math.round((nt.usage_ratio||0)*100)}% full), ${(mem.sessions||{}).open} open chat(s), ${(mem.knowledge_graph||{}).projects} indexed project(s), storage ${(((mem.storage||{}).bytes||0)/1048576).toFixed(1)} MB, this process ${pr.rss_mb??pr.peak_rss_mb??'?'} MB`:'';
+    if(!m.turns){$('statbox').textContent=['No turns yet.',memLine].filter(Boolean).join('\n');return}
+    const r=m.by_route,t=m.tokens_saved_estimate;
+    $('statbox').textContent=[
+      `turns ${m.turns}: API ${r.api.turns}, local ${r.local.turns}, no-model ${r.tool.turns} (API calls avoided: ${m.api_calls_avoided})`,
+      `latency p50/p95: API ${r.api.p50_latency_sec}s/${r.api.p95_latency_sec}s, local ${r.local.p50_latency_sec}s/${r.local.p95_latency_sec}s`,
+      `local overhead on API turns: ${m.avg_local_overhead_sec_on_api_turns}s avg`,
+      m.latency_stages&&Object.keys(m.latency_stages).length?`where the time goes: ${Object.entries(m.latency_stages).sort((a,b)=>b[1].total_sec-a[1].total_sec).map(([k,v])=>`${k.replace('_',' ')} ${v.share_pct}%`).join(', ')} (slowest: ${(m.slowest_stage||'').replace('_',' ')})`:'',
+      `compression: ${m.compressed_turns} old replies shown compressed, about ${m.compression_saved} tokens saved (no model used)`,
+      window.lastCtx&&window.lastCtx.history_tokens?`what is big in this chat: your messages ${window.lastCtx.history_tokens.user}, assistant prose ${window.lastCtx.history_tokens.assistant_prose}, assistant code ${window.lastCtx.history_tokens.assistant_code} tokens`:'',
+      `queue waits (avg): local model ${m.avg_wait_local_sec}s, API line ${m.avg_wait_api_sec}s. Local jobs paused for a better job: ${m.local_pauses}`,
+      `cost: $${m.cost_usd} spent; about $${m.saved_cost_usd} saved by the token savers (LiteLLM price table); answered by the fallback model: ${m.fallbacks}`,
+      `API tokens: ${m.api_input_tokens} in, ${m.api_output_tokens} out`,
+      `saved (estimate): ${t.total} tok = savers ${t.input_savers}, history ${t.context_paging}, code graph ${t.code_graph}, documents ${t.documents}`,
+      `tool calls ${m.tool_calls}, memory notes used ${m.memory_hits}, escalations ${m.escalations}, errors ${m.errors}`,memLine].filter(Boolean).join('\n')}
+  catch(e){$('statbox').textContent='Could not load stats.'}}
+async function loadMem(){
+  try{const d=await (await fetch('/api/memory')).json();$('memnote').textContent=d.enabled?`${d.notes} note(s) stored`+(d.stats?` (${d.stats.ram_count} in RAM, ${d.stats.disk_count} on disk).`:'.'):'Memory is off in the settings.'}
+  catch(e){$('memnote').textContent='Could not load.'}}
+$('statsum').parentElement.addEventListener('toggle',e=>{if(e.target.open)loadStats()});
+$('memsum').parentElement.addEventListener('toggle',e=>{if(e.target.open)loadMem()});
+$('statrefresh').onclick=loadStats;
+$('statreset').onclick=async()=>{await fetch('/api/metrics/reset',{method:'POST'});loadStats()};
+$('memclear').onclick=async()=>{if(confirm('Delete all stored memory?')){await fetch('/api/memory',{method:'DELETE'});loadMem()}};
+
+$('erun').onclick=async()=>{
+  const out=$('eout');out.textContent='Running…';$('erun').disabled=true;
+  try{
+    const r=await fetch('/api/experiment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      text:$('etext').value,methods,mode,pasted,provider:$('prov').value,model:$('model').value.trim(),api_key:$('key').value,call_api:$('ecall').checked})});
+    const d=await r.json();if(!r.ok){out.innerHTML=`<span class="err">${esc(d.error)}</span>`;return}
+    const s=d.saver,pct=s.tokens_original?Math.round(100*s.tokens_saved/s.tokens_original):0;
+    let h=`<div class="sum">${s.tokens_original} to ${s.tokens_reduced} tokens, <b>saved ${s.tokens_saved} (${pct}%)</b></div>
+    <table><tr><th>Method</th><th>Result</th><th>Tokens</th></tr>`+s.steps.map((st,i)=>`
+    <tr class="step" data-i="${i}"><td>${esc(st.name)}</td><td><span class="st ${st.status}">${st.status}</span><div class="note">${esc(st.reason)}</div></td>
+    <td>${st.tokens_before} to ${st.tokens_after}<div class="bar"><i style="width:${s.tokens_original?100*st.tokens_after/s.tokens_original:0}%"></i></div></td></tr>
+    <tr hidden id="d${i}"><td colspan="3"><div class="cmp"><div>before<pre>${esc(st.before)}</pre></div><div>after<pre>${esc(st.after)}</pre></div></div></td></tr>`).join('')+`</table>
+    <div class="note">Token counter: ${esc(d.counter)}. Click a row to compare the text before and after that method.</div>`;
+    if(d.api){const a=d.api;h+=`<h2 style="margin-top:18px">API, raw vs saved</h2><table><tr><th></th><th>Input</th><th>Output</th></tr>
+      <tr><td>Raw prompt, no output config</td><td>${a.raw.input_tokens}</td><td>${a.raw.output_tokens}</td></tr>
+      <tr><td>Reduced prompt + output config</td><td>${a.optimized.input_tokens}</td><td>${a.optimized.output_tokens}</td></tr></table>
+      <div class="cmp"><div>raw reply<pre>${esc(a.raw.reply)}</pre></div><div>saved reply<pre>${esc(a.optimized.reply)}</pre></div></div>
+      <div class="note">Counts are the API's own usage report. The output config adds input tokens to every request; it pays off when replies get shorter.</div>`}
+    out.innerHTML=h;
+    out.querySelectorAll('tr.step').forEach(tr=>tr.onclick=()=>{const x=$('d'+tr.dataset.i);x.hidden=!x.hidden});
+  }catch(e){out.innerHTML=`<span class="err">${esc(e.message)}</span>`}
+  finally{$('erun').disabled=false}
+};
+</script>
+</body>
+</html>

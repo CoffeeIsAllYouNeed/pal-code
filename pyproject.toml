@@ -1,0 +1,96 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pal-code"
+version = "0.1.5"
+description = "Pal: build and plan with AI in your terminal (pal cli) or browser (pal web), on a layer that cuts tokens and latency."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Vrushal More" }]
+keywords = ["ai", "coding-assistant", "cli", "llm", "ollama", "tokens", "code-graph"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development",
+]
+dependencies = [
+  "requests>=2.31",
+  "pyyaml>=6.0",
+  "flask>=3.0",
+  "waitress>=3.0",
+  "rich>=13.7",
+  "prompt_toolkit>=3.0.43",
+  "litellm==1.102.1",       # every model call (local Ollama and the APIs); pinned. Hash-locked install: requirements/litellm.lock
+  "graphifyy>=0.9",         # the code graph of the folder (AST only: no model, nothing leaves the computer)
+  "pypdf>=4.0",             # PDF -> markdown
+  "python-pptx>=0.6.23",    # PowerPoint -> markdown
+  "openpyxl>=3.1",          # Excel -> markdown
+  "sounddevice>=0.4",       # the mic: recording (PortAudio comes with it on Windows and macOS)
+  "numpy>=1.24",
+  "faster-whisper>=1.0",    # speech to text on this computer (Whisper); nothing leaves the computer
+]
+
+[project.optional-dependencies]
+documents = ["pymupdf4llm>=0.0.17"]   # better PDFs (headings, tables); Word, PowerPoint, Excel and plain PDFs work without extras
+graph = []                             # kept so older install lines still work: graphify is installed by default now
+compression = ["nltk", "spacy", "proselint"]
+litellm = []                     # kept so older install lines still work: litellm is installed by default now
+vector = ["chromadb"]
+embeddings = ["sentence-transformers"]
+inprocess = ["torch", "transformers"]
+voice = []                       # kept so older install lines still work: the mic is installed by default now
+full = ["pal-code[documents]"]
+dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "types-requests", "types-PyYAML"]
+
+[project.scripts]
+pal = "pal.terminal.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pal = ["config/*.yaml", "**/*.md", "web/templates/*.html", "web/static/*.js", "web/static/*.css", "web/static/fonts/*", "web/static/*.png", "py.typed"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib -ra"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "RET"]
+ignore = ["E501", "S101", "S603", "S607", "B008", "UP007", "UP035", "UP045", "RET504", "RET505", "E731", "B905", "B027", "S110"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "B"]
+"experiments/*" = ["S", "B", "E", "F", "I"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+warn_unused_ignores = true
+check_untyped_defs = true
+follow_imports = "silent"   # report only the listed files; older modules are not type-cleaned yet
+files = [
+  "src/pal/chat", "src/pal/agents", "src/pal/sdk/agent.py", "src/pal/sdk/patterns.py",
+  "src/pal/sdk/savers.py", "src/pal/sdk/adapters.py", "src/pal/sdk/components/autogen_client.py", "src/pal/sdk/queries.py", "src/pal/sdk/os_api.py",
+  "src/pal/os_kernel", "src/pal/llm_scheduler", "src/pal/llm_wrapper/adapter.py", "src/pal/llm_wrapper/components/adapter_types.py",
+  "src/pal/llm_wrapper/components/features.py", "src/pal/llm_wrapper/components/litellm_wrapper.py",
+  "src/pal/context_manager/components/simple_context_manager.py", "src/pal/config.py", "src/pal/errors.py", "src/pal/paths.py",
+  "src/pal/tokens.py", "src/pal/cli.py", "src/pal/documents",
+  "src/pal/metrics", "src/pal/notes_manager", "src/pal/web", "src/pal/studio", "src/pal/terminal", "src/pal/token_tracker", "src/pal/latency_tracker", "src/pal/memory_tracker",
+  "src/pal/compression/history.py", "src/pal/context_manager/components/turns.py",
+  "src/pal/tool_manager/builtin.py",
+]

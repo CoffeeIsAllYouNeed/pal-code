@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pal code · Studio</title>
+<link rel="icon" type="image/png" href="/static/pal-logo-32.png">
+<link rel="apple-touch-icon" href="/static/pal-logo-256.png">
+<link rel="stylesheet" href="/static/inter.css">
+<link rel="stylesheet" href="/static/studio.css">
+</head>
+<body>
+<noscript><p class="warn">This page needs JavaScript.</p></noscript>
+<div class="shell">
+  <aside id="side" class="side" aria-label="Navigation">
+    <div class="brand"><img class="mark" src="/static/pal-logo-64.png" alt="" width="28" height="28"><span class="brandname">pal <span class="brand-red">code</span></span></div>
+    <nav>
+      <button id="newbuild" class="navitem active" type="button"><span class="ico" aria-hidden="true">+</span> New build</button>
+      <a class="navitem" href="/"><span class="ico" aria-hidden="true">&#9993;</span> Chat</a>
+      <div class="navhead">Recents</div>
+      <div id="runs" class="runs"><p class="navnote">Nothing built yet.</p></div>
+    </nav>
+    <div class="sidefoot">
+      <span id="localchip" class="chip" role="status">Checking the local model...</span>
+    </div>
+  </aside>
+
+  <section class="mainwrap is-empty">
+    <header class="top">
+      <button id="menu" class="iconbtn menu" type="button" aria-label="Show or hide the menu" aria-expanded="false">&#9776;</button>
+      <span class="toptitle">Studio</span>
+      <nav class="views" aria-label="View">
+        <button id="viewchat" class="active" type="button">Chat</button>
+        <button id="vieweditor" type="button" disabled title="Build something first, then open it here">Editor</button>
+      </nav>
+    </header>
+
+    <main id="main" class="main" aria-label="Conversation">
+      <div id="empty" class="empty">
+        <img class="spark" src="/static/pal-logo-256.png" alt="" width="72" height="72">
+        <h1>What do you want to build?</h1>
+      </div>
+      <div id="thread" class="thread" aria-live="polite" hidden></div>
+    </main>
+
+    <form id="composer" class="composer" autocomplete="off">
+      <div id="refchips" class="refchips" hidden></div>
+      <label for="cmd" class="sr">Describe what you want built, or tell me what to change</label>
+      <textarea id="cmd" rows="1" maxlength="4000" placeholder="Describe what you want built, or tell me what to change"></textarea>
+      <div class="bar">
+        <button id="attach" class="iconbtn" type="button" title="Attach reference files (text files, up to 150 KB each)" aria-label="Attach files">&#43;</button>
+        <input id="refs" type="file" multiple hidden accept=".txt,.md,.json,.html,.css,.js,.py,.csv,.xml,.yml,.yaml,.toml">
+        <label class="modelpick"><span class="sr">Bot model</span><select id="botmodel" title="The model that plans with you. The strongest plans best but is slowest."></select></label>
+        <span class="sp"></span>
+        <button id="mic" class="iconbtn" type="button" title="Speak instead of typing" aria-label="Speak instead of typing" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V22h2v-3.08A7 7 0 0 0 19 12h-2z" fill="currentColor"/></svg>
+        </button>
+        <button id="send" class="sendbtn" type="submit" title="Send" aria-label="Send" disabled>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 5l-6 6h4v8h4v-8h4z" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <p id="voicehint" class="hint" hidden></p>
+    </form>
+    <div id="below" class="below">
+      <div id="suggest" class="suggest" aria-label="Examples"></div>
+      <button id="byhand" class="linklike" type="button">or set up by hand</button>
+      <p class="hint">Local model: <span id="startmodel">checking...</span>. Everything stays on this machine unless you choose an API model.</p>
+    </div>
+  </section>
+
+  <section id="editor" class="editor" aria-label="Code editor" hidden>
+    <aside class="ed-files" aria-label="Project files">
+      <div class="ed-h">Files</div>
+      <ul id="edfiles" class="edfiles"></ul>
+      <form id="ednew" class="ednew" autocomplete="off">
+        <label class="sr" for="ednewname">New file name</label>
+        <input id="ednewname" type="text" maxlength="120" placeholder="new file, e.g. app.js">
+        <button type="submit" class="iconbtn" title="Create the file" aria-label="Create the file">+</button>
+      </form>
+      <a id="eddownload" class="linkbtn" href="#">Download (.zip)</a>
+    </aside>
+    <div class="ed-center">
+      <div id="edtabs" class="ed-tabs" role="tablist"></div>
+      <div class="ed-pane">
+        <p id="edempty" class="edempty">Open a file from the list.</p>
+        <pre id="edgutter" class="gutter" aria-hidden="true" hidden></pre>
+        <textarea id="edcode" class="code" spellcheck="false" wrap="off" aria-label="Code" hidden></textarea>
+        <div id="eddiff" class="ed-diff" hidden></div>
+      </div>
+      <div class="ed-bar">
+        <span id="edpath" class="edpath"></span>
+        <span class="sp"></span>
+        <span id="edstatus" class="edstatus" role="status"></span>
+        <span id="edpos" class="edpos"></span>
+        <button id="edsave" class="btn" type="button" disabled>Save</button>
+      </div>
+    </div>
+    <aside class="ed-ask" aria-label="Ask Pal">
+      <div class="ed-h"><img class="mark" src="/static/pal-logo-32.png" alt="" width="20" height="20"> Ask Pal</div>
+      <div id="edmsgs" class="edmsgs" aria-live="polite"></div>
+      <p id="edmeter" class="edmeter"></p>
+      <form id="edform" class="edform" autocomplete="off">
+        <label class="sr" for="edask">Ask Pal to change the open file</label>
+        <textarea id="edask" rows="2" maxlength="4000" placeholder="Change this file, add a feature, or ask a question"></textarea>
+        <div class="bar">
+          <button id="edstop" class="btn" type="button" hidden>Stop</button>
+          <span class="sp"></span>
+          <button id="edsend" class="sendbtn" type="submit" title="Send" aria-label="Send" disabled>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 5l-6 6h4v8h4v-8h4z" fill="currentColor"/></svg>
+          </button>
+        </div>
+      </form>
+    </aside>
+  </section>
+</div>
+<script src="/static/voice.js"></script>
+<script src="/static/studio.js"></script>
+<script src="/static/editor.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+[project]
+name = "localrag"
+version = "0.1.0"
+description = "A local-first retrieval-augmented generation engine that is also a Model Context Protocol (MCP) server"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+localrag = "localrag.cli.main:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

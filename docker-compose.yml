@@ -1,0 +1,14 @@
+services:
+  pal:
+    build: .
+    ports:
+      - "127.0.0.1:5000:5000"   # localhost only: Pal has no login
+    environment:
+      PAL__LOCAL_LLM__HOST: http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - pal-data:/data
+      - ./:/work            # the project Pal sets up
+volumes:
+  pal-data:

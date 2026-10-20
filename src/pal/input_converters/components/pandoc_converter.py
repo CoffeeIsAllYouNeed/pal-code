@@ -1,8 +1,8 @@
 """HTML, DOCX, ODT, RTF, EPUB and LaTeX -> GitHub-flavoured markdown via pandoc."""
 from __future__ import annotations
 
-import shutil
 import re
+import shutil
 import subprocess
 
 from pal.input_converters.components.base import ConversionError

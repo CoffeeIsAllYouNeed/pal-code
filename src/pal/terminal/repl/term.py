@@ -11,6 +11,7 @@ import sys
 import threading
 import time
 import unicodedata
+from typing import Any, NoReturn
 
 # -- colours (SGR parameters) ------------------------------------------------------------------------------------------------------
 RED = "38;2;229;9;20"
@@ -341,7 +342,7 @@ def simple_error(msg: str) -> None:
     err(c(f"{HI_RED};{BOLD}", "\U0001F6A8 " + _cap(msg)))
 
 
-def fail(msg: str) -> None:
+def fail(msg: str) -> NoReturn:
     """Print the error (a chain split on ': ', one level per line) and end the command."""
     spinner.stop()
     msg = msg.replace("status code:", "status code").replace(", body:", ":")
@@ -365,14 +366,14 @@ def fail(msg: str) -> None:
     raise Exit(1)
 
 
-def usage_error(msg: str) -> None:
+def usage_error(msg: str) -> NoReturn:
     """A command used the wrong way: one line, 'Error: ...'."""
     spinner.stop()
     simple_error("Error: " + msg)
     raise Exit(1)
 
 
-def no_plan() -> None:
+def no_plan() -> NoReturn:
     out("\U0001F937‍♂️ No current plan")
     out()
     print_cmds("new", "cd")
@@ -450,9 +451,10 @@ def get_key() -> str:
         return line[:1] if line.strip() else "enter"
     if os.name == "nt":
         import msvcrt
-        ch = msvcrt.getwch()
+        getwch = vars(msvcrt)["getwch"]             # Windows only (mypy checks on Linux, where msvcrt has no getwch)
+        ch = getwch()
         if ch in ("\x00", "\xe0"):
-            code = msvcrt.getwch()
+            code = getwch()
             return {"P": "down", "H": "up", "K": "left", "M": "right"}.get(code, "")
         return {"\r": "enter", "\n": "enter", "\x03": "ctrl-c", "\x1b": "esc"}.get(ch, ch)
     import select as _select
@@ -525,7 +527,7 @@ def _list_app(message: str, options: list[str], multi: bool):
     from prompt_toolkit.key_binding import KeyBindings
     from prompt_toolkit.layout import FormattedTextControl, HSplit, Layout, Window
 
-    st = {"sel": 0, "filter": "", "top": 0, "picked": set(), "result": None}
+    st: dict[str, Any] = {"sel": 0, "filter": "", "top": 0, "picked": set(), "result": None}
 
     def shown() -> list[str]:
         f = st["filter"].lower()
@@ -618,7 +620,7 @@ def _list_app(message: str, options: list[str], multi: bool):
             st["filter"] += ch
             st["sel"], st["top"] = 0, 0
 
-    app = Application(layout=Layout(HSplit([Window(FormattedTextControl(render), wrap_lines=True)])), key_bindings=kb, full_screen=False,
+    app: Application = Application(layout=Layout(HSplit([Window(FormattedTextControl(render), wrap_lines=True)])), key_bindings=kb, full_screen=False,
                       erase_when_done=True, mouse_support=False)
     return app, st
 

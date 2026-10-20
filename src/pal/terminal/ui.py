@@ -9,6 +9,7 @@ import os
 import shutil
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 from prompt_toolkit import Application
 from prompt_toolkit.buffer import Buffer
@@ -244,7 +245,7 @@ def select(console: Console, message: str, options: list[str], default: int = 0)
     if not (sys.stdin.isatty() and sys.stdout.isatty()):
         return options[default]
     from prompt_toolkit.key_binding import KeyBindings as _KB
-    state = {"sel": default, "out": None}
+    state: dict[str, Any] = {"sel": default, "out": None}
     pad = " " * (metrics(console.width)[1] + 2)
 
     def render():
@@ -374,7 +375,8 @@ def show_tokens(console: Console, session: PalSession, arg: str = "") -> None:
     elif arg == "turns":
         grid = Table.grid(padding=(0, 2))
         for width, just in ((3, "right"), (26, "left"), (8, "right"), (8, "right"), (8, "right"), (24, "left")):
-            grid.add_column(width=width, justify=just, no_wrap=True, overflow="ellipsis")
+            grid.add_column(width=width, justify=just,  # type: ignore[arg-type]
+                             no_wrap=True, overflow="ellipsis")
         grid.add_row(*(Text(h, style=theme.MUTED) for h in ("#", "request", "used", "plain", "saved", "biggest saving")))
         for i, r in enumerate(session.records, 1):
             best = max(r.saved_by.items(), key=lambda kv: kv[1])[0] if r.saved_by else ""
@@ -496,7 +498,7 @@ def left_line(session: PalSession) -> list[tuple[str, str]]:
 def clickable_agent_line(session: PalSession, click) -> list:
     """The agent and the model under the input box; clicking either opens its dropdown."""
     frags = agent_line(session)
-    out = []
+    out: list = []
     for frag in frags:
         if frag[0] == "class:model":
             out.append(("class:model class:link", frag[1] + " \u25BE", click("\x00model\x00")))
@@ -580,9 +582,9 @@ def show_project(console: Console, session: PalSession) -> None:
         row(True, "Tests", r.tests)
 
 
-def read_input(session: PalSession, console: Console, save_mode: Callable[..., None] | None = None, landing: bool = False, version: str = "",
+def read_input(session: Any, console: Console, save_mode: Callable[..., None] | None = None, landing: bool = False, version: str = "",
                history=None, initial: str = "", on_shift_tab: Callable[[], str] | None = None,
-               models: Callable[[], list[tuple[str, str, str]] | None] | None = None, open_models: bool = False,
+               models: Callable[[], list[tuple[str, str, str]] | None] | None = None, open_models: bool | str = False,
                start_listening: bool = False) -> str | None:
     """Show the input box and return what was typed, or None when the person leaves (Ctrl+Q, or Ctrl+D on an empty box).
 
@@ -841,7 +843,7 @@ def read_input(session: PalSession, console: Console, save_mode: Callable[..., N
 
     # -- the model dropdown, in the box: click the model, Ctrl+O or /model; arrows and Enter (or a click) choose, Esc closes ------------------
     first_kind = open_models if isinstance(open_models, str) and open_models else "model"      # open_models: True / "model" / "agent"
-    drop = {"open": bool(open_models) and (first_kind == "agent" or bool(models)), "sel": 0, "kind": first_kind}
+    drop: dict[str, Any] = {"open": bool(open_models) and (first_kind == "agent" or bool(models)), "sel": 0, "kind": first_kind}
     models_open = Condition(lambda: drop["open"])
     AGENT_ITEMS = [("Build", "writes and edits files", "build"),
                    ("Plan", "plans the steps, no edits", "plan"),

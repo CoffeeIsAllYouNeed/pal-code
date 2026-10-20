@@ -179,6 +179,7 @@ class PalSession:
         self.budget = 0                              # a token cap for the session (0 = none): --budget or /budget
         self.helper_model = ""                       # the small local model doing Pal's own jobs, when there is one
         self.helper_core = None
+        self.brand = "cli"                           # "bench" on the pal bench screen
         self.local = True                            # False on a computer without a GPU: API models only, no local helper jobs
         self.pending: list[dict] = []                # files attached with /add (or dropped on the window), sent with the next message
         self.context: Callable[[], list[dict]] | None = None   # the plan's loaded context: [{name, text}] read fresh for every request

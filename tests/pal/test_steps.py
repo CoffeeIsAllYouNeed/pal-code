@@ -44,8 +44,8 @@ def test_questions_are_choices_and_default_to_the_safe_one():
 
 def test_which_model_answers_is_never_shown():
     seen = []
-    from pal.latency_tracker.pipeline import LatencyTracker  # noqa: F401
     from pal.latency_tracker import pipeline
+    from pal.latency_tracker.pipeline import LatencyTracker  # noqa: F401
 
     class T:
         stage_seconds: dict = {}

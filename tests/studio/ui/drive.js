@@ -62,6 +62,7 @@ const rq = (p, sel) => run(p).querySelector(sel);
 
 const scenarios = {
   async plan(p) {
+    try { await p.until(() => p.$('mic').disabled, 'the mic state (set after /api/voice answers)', 3000); } catch (e) { /* asserted below */ }
     const empty = { visible: !p.$('empty').hidden, suggestions: p.d.querySelectorAll('#suggest button').length, micDisabled: p.$('mic').disabled };
     await ask(p, 'a to-do list web page');
     await waitCard(p, 'product');

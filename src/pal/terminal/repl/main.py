@@ -11,6 +11,7 @@ import threading
 import time
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 from pal import __version__
 from pal.paths import pal_home
@@ -75,7 +76,7 @@ class State:
 class Ctx:
     def __init__(self, args, core_factory: Callable | None, boot, ready: dict, prep: threading.Thread):
         self.args, self.core_factory, self.boot, self.ready, self.prep = args, core_factory, boot, ready, prep
-        self.session = None
+        self.session: Any = None                           # the PalSession, once the background setup is done
         store = Store(boot.cwd)
         self.after_new = store.current_name() is None
         name = store.current_name()
@@ -548,7 +549,7 @@ def build_prompt(ctx: Ctx):
         n = term.width(prefix(ctx).rstrip())
         return "." * n + " "
 
-    session = PromptSession(message=message, completer=C(), complete_while_typing=True, history=mem, key_bindings=kb, style=style,
+    session: PromptSession = PromptSession(message=message, completer=C(), complete_while_typing=True, history=mem, key_bindings=kb, style=style,
                             prompt_continuation=continuation, reserve_space_for_menu=6, enable_history_search=False, multiline=True)
     return session, hist, paths
 
@@ -905,11 +906,11 @@ def execute(ctx: Ctx, raw: str, paths: list[tuple[str, bool]]) -> bool:
         targets = builtins + [cmd for cmd, _, _ in term.COMMANDS]
         near = similar(word, [t for t in targets if t != word])
         if near:
-            pick = suggest_cmds(near, word)
-            if pick is None:
+            choice = suggest_cmds(near, word)
+            if choice is None:
                 return True
-            if pick:
-                return execute(ctx, "\\" + pick, paths)
+            if choice:
+                return execute(ctx, "\\" + choice, paths)
         elif len(lines) == 1 and trimmed.startswith("\\"):
             try:
                 pick = term.select("\U0001F914 Couldn't find a matching command. What do you want to do?",
@@ -926,11 +927,11 @@ def execute(ctx: Ctx, raw: str, paths: list[tuple[str, bool]]) -> bool:
         targets = list(BUILTINS) + [cmd for cmd, _, _ in term.COMMANDS]
         near = similar(last, targets)
         if near and len(last.split()) <= 3:
-            pick = suggest_cmds(near, last)
-            if pick is None:
+            choice = suggest_cmds(near, last)
+            if choice is None:
                 return True
-            if pick:
-                return execute(ctx, "\\" + pick, paths)
+            if choice:
+                return execute(ctx, "\\" + choice, paths)
     dropped = _dropped(text)
     if dropped:                                            # files dropped on the window: into the context
         out()

@@ -19,8 +19,7 @@ RUN pip install --no-deps .
 
 # -- the tests: docker build --target test -t pal-code-test . && docker run --rm pal-code-test ------------------------------------
 FROM base AS test
-COPY tests ./tests
-COPY experiments ./experiments
+COPY . .
 RUN git config --global user.email "test@example.com" && git config --global user.name "Pal tests" \
     && rm -rf tests/studio/ui/node_modules
 ENV PAL_HOME=/tmp/pal-home

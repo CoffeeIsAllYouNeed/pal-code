@@ -82,7 +82,7 @@ def _plans(ctx, archived: bool = False) -> list[Plan]:
     for n in store.names():
         try:
             p = store.load(n) if n != ctx.wf.plan.name else ctx.wf.plan
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001, S112  (a broken plan file is left out of the list)
             continue
         if p.archived == archived:
             plans.append(p)
@@ -605,11 +605,12 @@ def cmd_show(ctx, args: list[str]) -> None:
         i = int(a)
         if not 0 < i <= len(items):
             term.usage_error(f"invalid context index: {a}")
-        it = items[i - 1]
+        it: dict | None = items[i - 1]
     else:
         it = next((x for x in items if x["name"] == a or x["key"] == a), None)
         if it is None:
             term.usage_error(f"no context found with name: {a}")
+    assert it is not None
     if it["type"] == "file":
         from pal.terminal.session import read_any
         p = Path(it["key"]) if Path(it["key"]).is_absolute() else ctx.wf.session.cwd / it["key"]

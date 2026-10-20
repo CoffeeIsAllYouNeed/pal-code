@@ -286,6 +286,7 @@ def web(args) -> int:
         import io
 
         from rich.console import Console
+
         from pal.terminal.setup import ensure_local
         try:
             host = args.host or backend.DEFAULT_HOST
@@ -888,6 +889,7 @@ def prepare_quietly(args, core_factory: Callable | None, out: dict) -> None:
     import io
 
     from rich.console import Console
+
     from pal.terminal.project import Project
     from pal.terminal.setup import ensure_local
     quiet = Console(file=io.StringIO())
@@ -1027,7 +1029,8 @@ def interactive_box(args, core_factory: Callable | None = None) -> int:
             _bind_status(state["box"]["wf"])
         return state["session"]
 
-    first, draft, code, open_models, listen_now = True, "", 0, False, False
+    first, draft, code, listen_now = True, "", 0, False
+    open_models: bool | str = False
     try:
         while True:
             shown = state["session"] or boot

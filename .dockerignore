@@ -1,6 +1,4 @@
 .git
-.github
-docs
 **/__pycache__
 **/*.pyc
 .pytest_cache

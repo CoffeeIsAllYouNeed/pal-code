@@ -6,8 +6,6 @@ import threading
 from pathlib import Path
 from types import SimpleNamespace
 
-import pytest
-
 from pal.terminal.repl import changes, cmds, stream, term
 from pal.terminal.workflow import Plan
 from tests.pal.fakes import ScriptedCore, files_reply

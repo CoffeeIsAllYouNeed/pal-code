@@ -23,7 +23,7 @@ def context_window(provider: str, model: str) -> int:
         for name in (f"{provider}/{model}" if provider else model, model, model.split("/")[-1]):
             try:
                 info = litellm.get_model_info(name)
-            except Exception:  # noqa: BLE001  (not in LiteLLM's table under this name)
+            except Exception:  # noqa: BLE001, S112  (not in LiteLLM's table under this name)
                 continue
             size = info.get("max_input_tokens") or info.get("max_tokens")
             if size:

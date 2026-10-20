@@ -450,7 +450,7 @@ class Workflow:
     def delete(self, name: str) -> None:
         if name not in self.store.names():
             raise ValueError(f"no plan called {name}")
-        if name != self.plan.name and (other := self.store.acquire(name)):
+        if name != self.plan.name and self.store.acquire(name):
             raise ValueError(f"plan {name} is open in another Pal")
         self.store.delete(name)
         if name == self.plan.name:

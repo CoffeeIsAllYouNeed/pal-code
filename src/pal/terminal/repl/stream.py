@@ -401,7 +401,7 @@ class View:
             if st.files():
                 self.collapsed, self.user_toggled = True, True
 
-        app = Application(layout=Layout(HSplit([Window(FormattedTextControl(text), wrap_lines=False)])), key_bindings=kb, full_screen=True,
+        app: Application = Application(layout=Layout(HSplit([Window(FormattedTextControl(text), wrap_lines=False)])), key_bindings=kb, full_screen=True,
                           mouse_support=False)
         holder["app"] = app
 

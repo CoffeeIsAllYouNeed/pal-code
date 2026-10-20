@@ -364,7 +364,7 @@ NO_HELPER = "No helper"
 def helper_choices(hw: Hardware, installed: list[str], exclude: str = "") -> list[tuple[str, str]]:
     """Small local models that can be Pal's helper on this computer, installed ones first, each marked installed or with its download size."""
     from pal.terminal.local_models import CATALOGUE, lookup
-    have = {(lookup(n).tag if lookup(n) else n) for n in installed}
+    have = {(k.tag if (k := lookup(n)) else n) for n in installed}
     rows = [m for m in CATALOGUE if m.helper and not m.thinks and m.tag != exclude and fit(m.need_gb, hw) != "too big"]
     rows.sort(key=lambda m: (m.tag not in have, -m.rank))
     return [(m.tag, ("installed · " if m.tag in have else f"{m.size_gb:g} GB download · ") + (m.note or "small and fast")) for m in rows]
@@ -372,10 +372,9 @@ def helper_choices(hw: Hardware, installed: list[str], exclude: str = "") -> lis
 
 def main_choices(hw: Hardware, installed: list[str]) -> list[tuple[str, str]]:
     """Local models for the main role: the ones that suit this GPU (installed ones marked), then any other installed model that fits."""
-    from pal.terminal.local_models import installed_fit
-    from pal.terminal.local_models import lookup
+    from pal.terminal.local_models import installed_fit, lookup
     helpers = {tag for tag, _ in helper_choices(hw, [])}
-    real = {}                                       # catalogue name -> the name it is installed under (llama3.1:8b -> llama3.1:8b-instruct-q4_K_M)
+    real: dict[str, str] = {}                       # catalogue name -> the name it is installed under (llama3.1:8b -> llama3.1:8b-instruct-q4_K_M)
     for n in installed:
         known = lookup(n)
         real.setdefault(known.tag if known else n, n)
@@ -438,11 +437,11 @@ def choose_models(console: Console, hw: Hardware, host: str = backend.DEFAULT_HO
         return True
     main = "" if answer == API_OPTION else answer
     helpers = helper_choices(hw, installed, exclude=main) + [(NO_HELPER, "the main model also does Pal's small jobs (uses more of its tokens)")]
-    helper = pick("Which small local helper should do Pal's own jobs? (routing easy questions, trimming what you type)", helpers, None, True, "Helper")
-    helper = (helper or NO_HELPER).strip().removeprefix("ollama pull ").strip()
-    if helper == NO_HELPER or not _get(console, helper, installed, confirm, puller):
-        helper = ""
-    backend.save_prefs(helper_model=helper, setup_done="1")
+    chosen = pick("Which small local helper should do Pal's own jobs? (routing easy questions, trimming what you type)", helpers, None, True, "Helper")
+    chosen = (chosen or NO_HELPER).strip().removeprefix("ollama pull ").strip()
+    if chosen == NO_HELPER or not _get(console, chosen, installed, confirm, puller):
+        chosen = ""
+    backend.save_prefs(helper_model=chosen, setup_done="1")
     return True
 
 
